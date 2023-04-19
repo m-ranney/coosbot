@@ -61,7 +61,7 @@ def generate_output():
             engine="text-davinci-002",
             prompt=f"Use the following generated calendar as input to generate a new schedule that is written in .ics format:\n{generated_calendar}\n. It should follow this format UID:1 DTSTART;VALUE=DATE-TIME:20230417T063000, DTEND;VALUE=DATE-TIME:20230417T064500, SUMMARY:Wake up & Morning routine, END:VEVENT. This format needs to be able to able to be imported into my google calendar. Each activity should be the summary field in the .ics format.",
             temperature=0.5,
-            max_tokens=200,
+            max_tokens=2000,
             top_p=1,
             frequency_penalty=0,
             presence_penalty=0
