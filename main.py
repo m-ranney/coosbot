@@ -49,4 +49,4 @@ def generate_calendar():
     return render_template('schedule_preview.html', schedule=generated_schedule)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(debug=False)
