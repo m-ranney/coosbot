@@ -42,8 +42,38 @@
                 } else {
                     generatedEventDetails.textContent = data.generated_event_details;
                     // Set the generated event details in the hidden input field and submit the form
-                    document.getElementById('generated_event_details_input').value = data;
-                    document.getElementById('event_form').submit();
+                    fetch('/create_ics_file', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                      },
+                      body: new URLSearchParams({event_details: data.generated_event_details})
+                    })
+                    .then(response => {
+                      if (response.ok) {
+                        return response.blob();
+                      } else {
+                        throw new Error('Error generating ICS file');
+                      }
+                    })
+                    .then(blob => {
+                      // Create a link element to download the ICS file
+                      const url = URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = 'event.ics';
+                      link.style.display = 'none';
+                      document.body.appendChild(link);
+                      link.click();
+                      setTimeout(() => {
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                      }, 100);
+                    })
+                    .catch(error => {
+                      console.error("Error:", error);
+                    });
+
                 }
             })
             .catch(error => {
