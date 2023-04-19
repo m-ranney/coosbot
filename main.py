@@ -65,9 +65,11 @@ def generate_calendar():
         for activity in activities_dict_list:
             table += f"<tr><td>{activity['name']}</td><td>{activity['start_time']}</td><td>{activity['end_time']}</td></tr>"
         table += "</table>"
-    
-        return jsonify({"schedule": table})
 
+    except Exception as e:
+        return jsonify({"error": str(e)})
+        
+    return jsonify({"schedule": table})
   
 if __name__ == '__main__':
     app.run(debug=False)
