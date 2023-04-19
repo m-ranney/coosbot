@@ -8,7 +8,7 @@ import json
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-openai_api_key = os.environ.get("OPENAI_API_KEY")
+openai_api_key = os.environ['OPENAI_API_KEY']
 openai.api_key = openai_api_key
 
 # Home page
@@ -49,3 +49,4 @@ def generate_calendar():
   
 if __name__ == '__main__':
     app.run(debug=False)
+my_secret = os.environ['OPENAI_API_KEY']
