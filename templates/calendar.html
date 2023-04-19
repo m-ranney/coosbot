@@ -33,42 +33,31 @@
                 console.error("Error:", error);
             });
         }
-        function generateICS() {
-            if (!window.generatedSchedule) {
-                alert("You need to generate a schedule first!");
-                return;
-            }
-        
-            // Send the generated schedule to the server to generate an ICS file
-            fetch('/generate_ics', {
+
+        function generateOutput(event) {
+            event.preventDefault();  // Prevent the form from refreshing the page
+
+            // Send the generated calendar to the server to generate output
+            fetch('/generate_output', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({schedule: window.generatedSchedule})
+                body: JSON.stringify({generated_calendar: window.generatedSchedule})
             })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    alert("Error generating ICS schedule: " + data.error);
+                    alert("Error generating output: " + data.error);
                 } else {
-                    // Create a new link element and set its href attribute to the URL of the generated file
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(data.ics_schedule);
-                    downloadLink.download = "schedule.ics";
-                    downloadLink.textContent = "Download Schedule";
-        
-                    // Append the link element to the page
-                    const icsContainer = document.getElementById('ics_schedule_preview');
-                    icsContainer.innerHTML = '';
-                    icsContainer.appendChild(downloadLink);
+                    document.getElementById('output').textContent = data.output;
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
             });
         }
-    
+      
     </script>
 </head>
 <body>
@@ -86,11 +75,14 @@
   
     <h2>Preview Schedule</h2>
     <pre id="schedule_preview"></pre>
-    <button onclick="generateICS()">Generate ICS File</button>
 
-    <h2>Preview ICS Schedule</h2>
-    <pre id="ics_schedule_preview"></pre>
-  
+    <form onsubmit="generateOutput(event);">
+        <button type="submit">Generate Output</button>
+    </form>
+
+    <h2>Generated Output</h2>
+    <pre id="output"></pre>
+
 </body>
 </html>
 

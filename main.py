@@ -1,10 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-import pandas as pd
-import requests
+from flask import Flask, render_template, request, jsonify 
 import os
 import openai
 from datetime import date, timedelta, datetime
-import json
 import ics
 from ics import Calendar, Event
 from pytz import timezone
@@ -52,19 +49,17 @@ def generate_calendar():
 
     return jsonify({"schedule": generated_schedule})
 
-@app.route('/generate_ics', methods=['POST'])
-def generate_ics():
-    # Get the generated schedule from the request body
-    schedule = request.json['schedule']
+# New route to generate output from a generated calendar
+@app.route('/generate_output', methods=['POST'])
+def generate_output():
+    # Get the generated calendar from the request body
+    generated_calendar = request.json['generated_calendar']
     
-    # Create a new calendar
-    cal = Calendar()
-
-    # Call the OpenAI API to generate the schedule
+    # Call the OpenAI API to generate output using the generated calendar
     try:
         response = openai.Completion.create(
             engine="text-davinci-002",
-            prompt=f"Create an calendar schedule in .ics format for {schedule}",
+            prompt=f"Use the following generated calendar as input to generate a new output:\n{generated_calendar}\n",
             temperature=0.5,
             max_tokens=200,
             top_p=1,
@@ -72,25 +67,13 @@ def generate_ics():
             presence_penalty=0
         )
 
-        generated_ics = response.choices[0].text.strip()
-        print("Generated ICS Schedule:", generated_ics)  # Log the generated ics schedule
+        generated_output = response.choices[0].text.strip()
+        print("Generated Output:", generated_output)  # Log the generated output
     
     except Exception as e:
         return jsonify({"error": str(e)})
 
-    # Create an ICS event from the generated schedule
-    event = Event()
-    event.name = "My Schedule"
-    event.begin = datetime.now(tz=timezone('UTC'))
-    event.uid = generated_ics
-    event.description = generated_ics
-    
-    cal.events.add(event)
-    
-    # Return the ICS file as a download attachment
-    return Response(str(cal), mimetype='text/calendar', headers={
-        'Content-Disposition': 'attachment; filename=schedule.ics'
-    })
+    return jsonify({"output": generated_output})
 
 if __name__ == '__main__':
     app.run(debug=False)
