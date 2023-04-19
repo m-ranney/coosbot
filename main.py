@@ -47,7 +47,9 @@ def generate_calendar():
         flash("Error generating calendar schedule: " + str(e))
         return redirect(url_for('calendar'))
 
+    print("Before render_template")  # Add this line
     return render_template('schedule_preview.html', schedule=generated_schedule)
+
 
 if __name__ == '__main__':
     app.run(debug=False)
