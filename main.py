@@ -78,7 +78,19 @@ def generate_ics():
     except Exception as e:
         return jsonify({"error": str(e)})
 
-    return jsonify({"ics_schedule": generated_ics})
+    # Create an ICS event from the generated schedule
+    event = Event()
+    event.name = "My Schedule"
+    event.begin = datetime.now(tz=timezone('UTC'))
+    event.uid = generated_ics
+    event.description = generated_ics
+    
+    cal.events.add(event)
+    
+    # Return the ICS file as a download attachment
+    return Response(str(cal), mimetype='text/calendar', headers={
+        'Content-Disposition': 'attachment; filename=schedule.ics'
+    })
 
 if __name__ == '__main__':
     app.run(debug=False)

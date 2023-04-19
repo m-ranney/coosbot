@@ -34,32 +34,41 @@
             });
         }
         function generateICS() {
-          if (!window.generatedSchedule) {
-            alert("You need to generate a schedule first!");
-            return;
-          }
-        
-          // Send the generated schedule to the server to generate an ICS file
-          fetch('/generate_ics', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({schedule: window.generatedSchedule})
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.error) {
-              alert("Error generating ICS schedule: " + data.error);
-            } else {
-              document.getElementById('ics_schedule_preview').textContent = data.ics_schedule;
+            if (!window.generatedSchedule) {
+                alert("You need to generate a schedule first!");
+                return;
             }
-          })
-          .catch(error => {
-            console.error("Error:", error);
-          });
+        
+            // Send the generated schedule to the server to generate an ICS file
+            fetch('/generate_ics', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({schedule: window.generatedSchedule})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Error generating ICS schedule: " + data.error);
+                } else {
+                    // Create a new link element and set its href attribute to the URL of the generated file
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(data.ics_schedule);
+                    downloadLink.download = "schedule.ics";
+                    downloadLink.textContent = "Download Schedule";
+        
+                    // Append the link element to the page
+                    const icsContainer = document.getElementById('ics_schedule_preview');
+                    icsContainer.innerHTML = '';
+                    icsContainer.appendChild(downloadLink);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
         }
-
+    
     </script>
 </head>
 <body>
