@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Create Calendar Event</h1>
-    <form action="/generate_calendar" method="post" onsubmit="handleSubmit(event)">
+    <form action="/generate_calendar" method="post" onsubmit="return logFormData();">
         <label for="activities">Enter your activities you want to add to your schedule:</label><br>
         <textarea id="activities" name="activities" rows="5" cols="40"></textarea><br>
         
@@ -18,17 +18,16 @@
     </form>
 
     <script>
-        function handleSubmit(event) {
-            event.preventDefault();  // Prevent the form from being submitted
-
-            const formData = new FormData(event.target);
-            console.log('Activities:', formData.get('activities'));
-            console.log('Date:', formData.get('date'));
-
-            event.target.submit();  // Manually submit the form
+        function logFormData() {
+            var activities = document.getElementById("activities").value;
+            var date = document.getElementById("date").value;
+            console.log("Activities:", activities);
+            console.log("Date:", date);
+            return false;
         }
     </script>
 </body>
 </html>
+
 
 
