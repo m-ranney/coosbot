@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coosbot</title>
+</head>
+<body>
+    <h1>Generated Calendar Schedule</h1>
+    <pre>{{ schedule }}</pre>
+    <form action="/export_calendar" method="post">
+        <input type="hidden" name="schedule" value="{{ schedule }}">
+        <input type="submit" value="Approve and Export">
+    </form>
+    <button onclick="location.href='/calendar'">Go back and edit</button>
+</body>
+</html>
