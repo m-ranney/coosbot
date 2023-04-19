@@ -117,7 +117,7 @@ def generate_event_details():
     except Exception as e:
         return jsonify({"error": str(e)})
     
-    return generated_event_details
+    return jsonify({"generated_event_details": generated_event_details})
 
 @app.route('/create_ics_file', methods=['POST'])
 def create_ics_file():

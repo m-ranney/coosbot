@@ -8,7 +8,7 @@
 <body>
     <h1>Add Event</h1>
   
-    <form id="event_form" action="/create_ics_file" method="POST">
+    <form id="event_form" method="POST">
         <label for="event_details">Enter event details:</label><br>
         <textarea id="event_details" name="event_details" rows="5" cols="40"></textarea><br>
         <small>For best results, please specify event name, start time, and duration.</small><br>
@@ -35,12 +35,12 @@
                 },
                 body: new URLSearchParams({event_details: eventDetails})
             })
-            .then(response => response.text()) // Updated to parse the response as text
+            .then(response => response.json()) // Updated to parse the response as json
             .then(data => {
                 if (data.error) {
                     alert("Error generating event details: " + data.error);
                 } else {
-                    generatedEventDetails.textContent = data;
+                    generatedEventDetails.textContent = data.generated_event_details;
                     // Set the generated event details in the hidden input field and submit the form
                     document.getElementById('generated_event_details_input').value = data;
                     document.getElementById('event_form').submit();
