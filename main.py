@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import requests
 import os
 import openai
@@ -23,10 +23,8 @@ def calendar():
     default_date = tomorrow.isoformat()
     return render_template('calendar.html', default_date=default_date)
 
-# Generating the calendar route
 @app.route('/generate_calendar', methods=['POST'])
 def generate_calendar():
-    print(request.form)  # Add this line
     activities = request.form.get('activities')
     event_date = request.form.get('date')
     
@@ -45,11 +43,9 @@ def generate_calendar():
         generated_schedule = response.choices[0].text.strip()
         print("Generated Schedule:", generated_schedule)  # Log the generated schedule
     except Exception as e:
-        flash("Error generating calendar schedule: " + str(e))
-        return redirect(url_for('calendar'))
+        return jsonify({"error": str(e)})
 
-    print("Before render_template")  # Add this line
-    return render_template('schedule_preview.html', schedule=generated_schedule)
-
+    return jsonify({"schedule": generated_schedule})
+  
 if __name__ == '__main__':
     app.run(debug=False)
