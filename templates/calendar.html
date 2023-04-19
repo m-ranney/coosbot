@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Create Calendar Event</h1>
-    <form action="/generate_calendar" method="post" onsubmit="return logFormData();">
+    <form action="/generate_calendar" method="post" onsubmit="logFormData();">
         <label for="activities">Enter your activities you want to add to your schedule:</label><br>
         <textarea id="activities" name="activities" rows="5" cols="40"></textarea><br>
         
@@ -23,11 +23,11 @@
             var date = document.getElementById("date").value;
             console.log("Activities:", activities);
             console.log("Date:", date);
-            return false;
         }
     </script>
 </body>
 </html>
+
 
 
 
