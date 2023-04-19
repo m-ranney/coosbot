@@ -42,34 +42,12 @@ def generate_calendar():
         )
 
         generated_schedule = response.choices[0].text.strip()
-      
-        # Split the generated schedule into individual activities
-        activities_list = generated_schedule.split("\n\n")
-        activities_list = [activity.split("\n") for activity in activities_list]
+        print("Generated Schedule:", generated_schedule)  # Log the generated schedule
     
-        # Create a list of dictionaries with activity name, start time, and end time
-        activities_dict_list = []
-        for activity in activities_list:
-            activity_dict = {}
-            for i in range(len(activity)):
-                if i == 0:
-                    activity_dict["name"] = activity[i]
-                elif "start time" in activity[i]:
-                    activity_dict["start_time"] = activity[i].split(": ")[1]
-                elif "end time" in activity[i]:
-                    activity_dict["end_time"] = activity[i].split(": ")[1]
-            activities_dict_list.append(activity_dict)
-    
-        # Create a table view with activity name, start time, and end time
-        table = "<table><tr><th>Activity</th><th>Start Time</th><th>End Time</th></tr>"
-        for activity in activities_dict_list:
-            table += f"<tr><td>{activity['name']}</td><td>{activity['start_time']}</td><td>{activity['end_time']}</td></tr>"
-        table += "</table>"
-
     except Exception as e:
         return jsonify({"error": str(e)})
-        
-    return jsonify({"schedule": table})
+
+    return jsonify({"schedule": generated_schedule})
   
 if __name__ == '__main__':
     app.run(debug=False)
