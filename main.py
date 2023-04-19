@@ -75,5 +75,30 @@ def generate_output():
 
     return jsonify({"output": generated_output})
 
+@app.route('/generate_event_details', methods=['POST'])
+def generate_event_details():
+    # Get the event details from the form data submitted by the user
+    event_details = request.form.get('event_details')
+    
+    # Call the OpenAI API to generate the event details
+    try:
+        response = openai.Completion.create(
+            engine="text-davinci-002",
+            prompt=f"Use the information from {event_details} to generate schedule that can be imported into google calendar. It should be created in the following format: BEGIN:VCALENDAR, VERSION:2.0, PRODID:-//Your Schedule//EN, BEGIN:VEVENT, UID:1, DTSTART;VALUE=DATE-TIME:20230417T063000, DTEND;VALUE=DATE-TIME:20230417T064500, SUMMARY:Wake up & Morning routine, END:VEVENT, END:VCALENDAR",
+            temperature=0.5,
+            max_tokens=200,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
+
+        generated_event_details = response.choices[0].text.strip()
+        print("Generated Event Details:", generated_event_details)  # Log the generated event details
+    
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+    return jsonify({"event_details": generated_event_details})
+
 if __name__ == '__main__':
     app.run(debug=False)

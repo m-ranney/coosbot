@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Event</title>
+</head>
+<body>
+    <h1>Add Event</h1>
+  
+    <form action="/generate_event_details" method="POST">
+        <label for="event_details">Enter event details:</label><br>
+        <textarea id="event_details" name="event_details" rows="5" cols="40"></textarea><br>
+        <small>For best results, please specify event name, start time, and duration.</small><br>
+        
+        <input type="submit" value="Add to Calendar">
+    </form>
+  
+    <h2>Generated Event Details</h2>
+    <div id="generated_event_details"></div>
+  
+    <script>
+        const form = document.querySelector('form');
+        const generatedEventDetails = document.getElementById('generated_event_details');
+        
+        form.addEventListener('submit', event => {
+            event.preventDefault(); // Prevent the form from refreshing the page
+
+            const eventDetails = document.getElementById('event_details').value;
+            
+            fetch('/generate_event_details', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({event_details: eventDetails})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Error generating event details: " + data.error);
+                } else {
+                    generatedEventDetails.textContent = data.event_details;
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        });
+    </script>
+  
+</body>
+</html>
