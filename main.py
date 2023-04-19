@@ -59,7 +59,7 @@ def generate_output():
     try:
         response = openai.Completion.create(
             engine="text-davinci-002",
-            prompt=f"Use the following generated calendar as input to generate a new output:\n{generated_calendar}\n",
+            prompt=f"Use the following generated calendar as input to generate a new schedule that is written in .ics format:\n{generated_calendar}\n",
             temperature=0.5,
             max_tokens=200,
             top_p=1,
