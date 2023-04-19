@@ -33,37 +33,38 @@
                 console.error("Error:", error);
             });
         }
-        
         function generateICS() {
-            if (!window.generatedSchedule) {
-                alert("You need to generate a schedule first!");
-                return;
+          if (!window.generatedSchedule) {
+            alert("You need to generate a schedule first!");
+            return;
+          }
+        
+          // Send the generated schedule to the server to generate an ICS file
+          fetch('/generate_ics', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({schedule: window.generatedSchedule})
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.error) {
+              alert("Error generating ICS schedule: " + data.error);
+            } else {
+              document.getElementById('ics_schedule_preview').textContent = data.ics_schedule;
             }
-            
-            // Send the generated schedule to the server to generate an ICS file
-            fetch('/generate_ics', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({schedule: window.generatedSchedule})
-            })
-            .then(response => response.blob())
-            .then(blob => {
-                // Create a download link for the ICS file and click it
-                const downloadLink = document.createElement('a');
-                downloadLink.href = URL.createObjectURL(blob);
-                downloadLink.download = "schedule.ics";
-                downloadLink.click();
-            })
-            .catch(error => {
-                console.error("Error:", error);
-            });
+          })
+          .catch(error => {
+            console.error("Error:", error);
+          });
         }
+
     </script>
 </head>
 <body>
     <h1>Create Calendar Event</h1>
+  
     <form onsubmit="submitForm(event);">
         <label for="activities">Enter your activities you want to add to your schedule:</label><br>
         <textarea id="activities" name="activities" rows="5" cols="40"></textarea><br>
@@ -73,9 +74,14 @@
         
         <input type="submit" value="Generate Calendar">
     </form>
+  
     <h2>Preview Schedule</h2>
     <pre id="schedule_preview"></pre>
     <button onclick="generateICS()">Generate ICS File</button>
+
+    <h2>Preview ICS Schedule</h2>
+    <pre id="ics_schedule_preview"></pre>
+  
 </body>
 </html>
 
