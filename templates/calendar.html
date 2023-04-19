@@ -3,26 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar Event</title>
+    <title>Coosbot</title>
 </head>
 <body>
-    <h1>Create a Calendar Event</h1>
-
-    <form method="POST" action="/calendar">
-        <label for="title">Event Title:</label>
-        <input type="text" id="title" name="title" required><br>
-
-        <label for="date">Event Date (YYYY-MM-DD):</label>
-        <input type="date" id="date" name="date" required><br>
-
-        <label for="start_time">Start Time (HH:MM):</label>
-        <input type="time" id="start_time" name="start_time" required><br>
-
-        <label for="end_time">End Time (HH:MM):</label>
-        <input type="time" id="end_time" name="end_time" required><br>
-
-        <input type="submit" value="Create Event">
+    <h1>Create Calendar Event</h1>
+    <form action="/generate_calendar" method="post">
+        <label for="activities">Enter your activities in plain language:</label><br>
+        <textarea id="activities" name="activities" rows="5" cols="40"></textarea><br>
+        
+        <label for="date">Choose a date:</label><br>
+        <input type="date" id="date" name="date" value="{{ default_date }}"><br>
+        
+        <input type="submit" value="Generate Calendar">
     </form>
-
 </body>
 </html>
+
