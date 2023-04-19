@@ -29,9 +29,6 @@ def generate_calendar():
     activities = request.form.get('activities')
     event_date = request.form.get('date')
     
-    print("Activities:", activities)  # Debugging print statement
-    print("Event Date:", event_date)  # Debugging print statement
-    
     # Call the OpenAI API to generate the schedule
     try:
         response = openai.Completion.create(
@@ -45,6 +42,7 @@ def generate_calendar():
         )
 
         generated_schedule = response.choices[0].text.strip()
+        print("Generated Schedule:", generated_schedule)  # Log the generated schedule
     except Exception as e:
         flash("Error generating calendar schedule: " + str(e))
         return redirect(url_for('calendar'))
