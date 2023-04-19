@@ -3,8 +3,11 @@ import pandas as pd
 import requests
 import os
 import openai
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import json
+import ics
+from ics import Calendar, Event
+from pytz import timezone
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -48,6 +51,33 @@ def generate_calendar():
         return jsonify({"error": str(e)})
 
     return jsonify({"schedule": generated_schedule})
-  
+
+@app.route('/generate_ics', methods=['POST'])
+def generate_ics():
+    # Get the generated schedule from the request body
+    schedule = request.json['schedule']
+    
+    # Create a new calendar
+    cal = Calendar()
+
+    # Get the timezone
+    tz = timezone('US/Pacific')
+    
+    # Create an event for each activity in the schedule
+    for line in schedule.split('\n'):
+        if not line.strip():
+            continue
+        try:
+            activity, start_time, end_time = line.split(',')
+            start_time = tz.localize(datetime.strptime(start_time.strip(), '%I:%M %p'))
+            end_time = tz.localize(datetime.strptime(end_time.strip(), '%I:%M %p'))
+            event = Event(name=activity.strip(), begin=start_time, end=end_time)
+            cal.events.add(event)
+        except Exception as e:
+            print("Error creating event:", e)
+
+    # Return the ICS file data in bytes format
+    return cal.to_ical()
+
 if __name__ == '__main__':
     app.run(debug=False)

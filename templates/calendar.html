@@ -26,7 +26,35 @@
                     alert("Error generating calendar schedule: " + data.error);
                 } else {
                     document.getElementById('schedule_preview').textContent = data.schedule;
+                    window.generatedSchedule = data.schedule;
                 }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+        
+        function generateICS() {
+            if (!window.generatedSchedule) {
+                alert("You need to generate a schedule first!");
+                return;
+            }
+            
+            // Send the generated schedule to the server to generate an ICS file
+            fetch('/generate_ics', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({schedule: window.generatedSchedule})
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                // Create a download link for the ICS file and click it
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(blob);
+                downloadLink.download = "schedule.ics";
+                downloadLink.click();
             })
             .catch(error => {
                 console.error("Error:", error);
@@ -47,6 +75,7 @@
     </form>
     <h2>Preview Schedule</h2>
     <pre id="schedule_preview"></pre>
+    <button onclick="generateICS()">Generate ICS File</button>
 </body>
 </html>
 
