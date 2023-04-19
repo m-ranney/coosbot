@@ -83,12 +83,13 @@ def generate_output():
 def generate_event_details():
     # Get the event details from the form data submitted by the user
     event_details = request.form.get('event_details')
-    
+    today = date.today().strftime("%Y%m%d")
+
     # Call the OpenAI API to generate the event details
     try:
         response = openai.Completion.create(
             engine="text-davinci-002",
-            prompt=f"Use the information from {event_details} to generate schedule that can be imported into google calendar. It should be created but replace the following format: BEGIN:VCALENDAR/n, VERSION:2.0/n, PRODID:-//Your Schedule//EN, BEGIN:VEVENT, UID:1, DTSTART;VALUE=DATE-TIME:20230417T063000, DTEND;VALUE=DATE-TIME:20230417T064500, SUMMARY:Wake up & Morning routine, END:VEVENT, END:VCALENDAR",
+            prompt=f"Use the information from {event_details} to generate schedule that can be imported into google calendar. Assume that today is {today}. Use the context from ''{event_details}' to update the: DTSTART;VALUE=DATE-TIME, DTEND;VALUE=DATE-TIME, and SUMMARY'. The total output should be created but replace the following format: BEGIN:VCALENDAR, VERSION:2.0, PRODID:-//Your Schedule//EN, BEGIN:VEVENT, UID:1, DTSTART;VALUE=DATE-TIME:20230417T063000, DTEND;VALUE=DATE-TIME:20230417T064500, SUMMARY:Wake up & Morning routine, END:VEVENT, END:VCALENDAR",
             temperature=0.5,
             max_tokens=200,
             top_p=1,
