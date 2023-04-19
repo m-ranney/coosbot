@@ -60,24 +60,25 @@ def generate_ics():
     # Create a new calendar
     cal = Calendar()
 
-    # Get the timezone
-    tz = timezone('US/Pacific')
-    
-    # Create an event for each activity in the schedule
-    for line in schedule.split('\n'):
-        if not line.strip():
-            continue
-        try:
-            activity, start_time, end_time = line.split(',')
-            start_time = tz.localize(datetime.strptime(start_time.strip(), '%I:%M %p'))
-            end_time = tz.localize(datetime.strptime(end_time.strip(), '%I:%M %p'))
-            event = Event(name=activity.strip(), begin=start_time, end=end_time)
-            cal.events.add(event)
-        except Exception as e:
-            print("Error creating event:", e)
+    # Call the OpenAI API to generate the schedule
+    try:
+        response = openai.Completion.create(
+            engine="text-davinci-002",
+            prompt=f"Create an calendar schedule in .ics format for {schedule}",
+            temperature=0.5,
+            max_tokens=200,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
 
-    # Return the ICS file data in bytes format
-    return cal.to_ical()
+        generated_ics = response.choices[0].text.strip()
+        print("Generated ICS Schedule:", generated_ics)  # Log the generated ics schedule
+    
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+    return jsonify({"ics_schedule": generated_ics})
 
 if __name__ == '__main__':
     app.run(debug=False)
