@@ -26,6 +26,7 @@ def calendar():
 # Generating the calendar route
 @app.route('/generate_calendar', methods=['POST'])
 def generate_calendar():
+    print(request.form)  # Add this line
     activities = request.form.get('activities')
     event_date = request.form.get('date')
     
@@ -49,7 +50,6 @@ def generate_calendar():
 
     print("Before render_template")  # Add this line
     return render_template('schedule_preview.html', schedule=generated_schedule)
-
 
 if __name__ == '__main__':
     app.run(debug=False)
