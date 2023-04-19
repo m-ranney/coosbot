@@ -1,4 +1,10 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory 
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
+
 import os
 import openai
 import uuid
