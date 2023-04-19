@@ -24,14 +24,14 @@ def calendar():
     default_date = tomorrow.isoformat()
     return render_template('calendar.html', default_date=default_date)
 
+@app.route('/add_event')
+def add_event():
+    return render_template('add_event.html')
+
 @app.route('/generate_calendar', methods=['POST'])
 def generate_calendar():
     activities = request.form.get('activities')
     event_date = request.form.get('date')
-
-@app.route('/add_event')
-def add_event():
-    return render_template('add_event.html')
   
     # Call the OpenAI API to generate the schedule
     try:
@@ -88,7 +88,7 @@ def generate_event_details():
     try:
         response = openai.Completion.create(
             engine="text-davinci-002",
-            prompt=f"Use the information from {event_details} to generate schedule that can be imported into google calendar. It should be created in the following format: BEGIN:VCALENDAR, VERSION:2.0, PRODID:-//Your Schedule//EN, BEGIN:VEVENT, UID:1, DTSTART;VALUE=DATE-TIME:20230417T063000, DTEND;VALUE=DATE-TIME:20230417T064500, SUMMARY:Wake up & Morning routine, END:VEVENT, END:VCALENDAR",
+            prompt=f"Use the information from {event_details} to generate schedule that can be imported into google calendar. It should be created but replace the following format: BEGIN:VCALENDAR/n, VERSION:2.0/n, PRODID:-//Your Schedule//EN, BEGIN:VEVENT, UID:1, DTSTART;VALUE=DATE-TIME:20230417T063000, DTEND;VALUE=DATE-TIME:20230417T064500, SUMMARY:Wake up & Morning routine, END:VEVENT, END:VCALENDAR",
             temperature=0.5,
             max_tokens=200,
             top_p=1,
