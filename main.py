@@ -59,7 +59,7 @@ def generate_output():
     try:
         response = openai.Completion.create(
             engine="text-davinci-002",
-            prompt=f"Use the following generated calendar as input to generate a new schedule that is written in .ics format:\n{generated_calendar}\n",
+            prompt=f"Use the following generated calendar as input to generate a new schedule that is written in .ics format:\n{generated_calendar}\n This format needs to be able to able to be imported into my google calendar. Each activity should be the summary field in the .ics format.",
             temperature=0.5,
             max_tokens=200,
             top_p=1,
