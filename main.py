@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, jsonify 
+from flask import Flask, render_template, request, jsonify, send_from_directory 
 import os
 import openai
+import uuid
 from datetime import date, timedelta, datetime
 import ics
 from ics import Calendar, Event
 from pytz import timezone
+
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -79,6 +81,12 @@ def generate_output():
 
     return jsonify({"output": generated_output})
 
+
+
+
+
+
+
 @app.route('/generate_event_details', methods=['POST'])
 def generate_event_details():
     # Get the event details from the form data submitted by the user
@@ -103,7 +111,20 @@ def generate_event_details():
     except Exception as e:
         return jsonify({"error": str(e)})
     
-    return jsonify({"event_details": generated_event_details})
+    return generated_event_details
+
+@app.route('/create_ics_file', methods=['POST'])
+def create_ics_file():
+    event_details = request.form.get('event_details')
+
+    # Create a unique filename
+    file_name = f"{uuid.uuid4()}.ics"
+
+    # Save the event details to an .ics file
+    with open(file_name, 'w') as f:
+        f.write(event_details)
+
+    return send_from_directory(directory=os.getcwd(), filename=file_name, as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=False)
