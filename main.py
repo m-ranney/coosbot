@@ -127,4 +127,4 @@ def create_ics_file():
     return send_from_directory(directory=os.getcwd(), filename=file_name, as_attachment=True)
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
