@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 import requests
 import os
 import openai
+from datetime import date, timedelta
 
 app = Flask(__name__)
 
