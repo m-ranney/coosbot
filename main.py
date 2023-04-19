@@ -28,7 +28,11 @@ def calendar():
 def generate_calendar():
     activities = request.form.get('activities')
     event_date = request.form.get('date')
-    
+
+@app.route('/add_event')
+def add_event():
+    return render_template('add_event.html')
+  
     # Call the OpenAI API to generate the schedule
     try:
         response = openai.Completion.create(
