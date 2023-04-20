@@ -4,4 +4,4 @@ requests
 openai
 icalendar
 google-api-python-client
-google-auth-oathlib
+google-auth-oathlib==0.4.6
