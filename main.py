@@ -2,17 +2,22 @@ from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
 import openai
 import uuid
-from datetime import date, timedelta, datetime
-import ics
-from ics import Calendar, Event
-from pytz import timezone
-
+import datetime
+from datetime import date, datetime, timedelta
+import re
+import pytz
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 my_secret = os.environ['OPENAI_API_KEY']
 openai.api_key = my_secret
+
+cal_secret = os.environ['GOOGLE_CAL_CLIENT_SECRET']
+google.api_key = cal_secret
 
 # Home page
 @app.route('/')
@@ -29,6 +34,30 @@ def calendar():
 @app.route('/add_event')
 def add_event():
     return render_template('add_event.html')
+
+
+# Set up OAuth 2.0
+flow = InstalledAppFlow.from_client_info(
+    client_config={
+        "installed": {
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob"],
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://accounts.google.com/o/oauth2/token",
+        }
+    },
+    scopes=["https://www.googleapis.com/auth/calendar"],
+)
+
+credentials = flow.run_local_server(port=0)
+
+# Access the Google Calendar API
+calendar_service = build("calendar", "v3", credentials=credentials)
+
+
+
+
 
 @app.route('/generate_calendar', methods=['POST'])
 def generate_calendar():
@@ -54,6 +83,9 @@ def generate_calendar():
         return jsonify({"error": str(e)})
 
     return jsonify({"schedule": generated_schedule})
+
+
+
 
 # New route to generate output from a generated calendar
 @app.route('/generate_output', methods=['POST'])
@@ -84,9 +116,6 @@ def generate_output():
 
 
 
-
-
-
 @app.route('/generate_event_details', methods=['POST'])
 def generate_event_details():
     # Get the event details from the form data submitted by the user
@@ -97,7 +126,7 @@ def generate_event_details():
     try:
         response = openai.Completion.create(
             engine="text-davinci-002",
-            prompt=f"Use the information from {event_details} to generate schedule that can be imported into google calendar. Assume that today is {today}. Use the context from ''{event_details}' to update the: DTSTART;VALUE=DATE-TIME, DTEND;VALUE=DATE-TIME, and SUMMARY'. The total output should be created but replace the following format: BEGIN:VCALENDAR, VERSION:2.0, PRODID:-//Your Schedule//EN, BEGIN:VEVENT, UID:1, DTSTART;VALUE=DATE-TIME:20230417T063000, DTEND;VALUE=DATE-TIME:20230417T064500, SUMMARY:Wake up & Morning routine, END:VEVENT, END:VCALENDAR",
+            prompt=f"Use the information from '{event_details}' to generate an event that can be imported into Google Calendar. Assume that today is {today}. Parse the event date, start time, and duration from the user input, and generate the event details in the following format: 'SUMMARY:Example Event, DATE:20230417, DTSTART;VALUE=DATE-TIME:20230417T063000, DTEND;VALUE=DATE-TIME:20230417T064500'.",
             temperature=0.5,
             max_tokens=200,
             top_p=1,
@@ -107,11 +136,19 @@ def generate_event_details():
 
         generated_event_details = response.choices[0].text.strip()
         print("Generated Event Details:", generated_event_details)  # Log the generated event details
+
+        date_match = re.search(r"DTSTART;VALUE=DATE-TIME:(\d{8})", generated_event_details)
+        start_time_match = re.search(r"DTSTART;VALUE=DATE-TIME:\d{8}T(\d{6})", generated_event_details)
+        end_time_match = re.search(r"DTEND;VALUE=DATE-TIME:\d{8}T(\d{6})", generated_event_details)
     
+        event_date = datetime.strptime(date_match.group(1), "%Y%m%d").strftime("%Y-%m-%d") if date_match else None
+        event_start_time = start_time_match.group(1) if start_time_match else None
+        event_end_time = end_time_match.group(1) if end_time_match else None
+  
     except Exception as e:
         return jsonify({"error": str(e)})
     
-    return jsonify({"generated_event_details": generated_event_details})
+    return jsonify({"generated_event_details": generated_event_details, "event_date": event_date, "event_start_time": event_start_time, "event_end_time": event_end_time})
 
 if __name__ == '__main__':
     app.run(debug=True)

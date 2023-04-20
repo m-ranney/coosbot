@@ -24,7 +24,7 @@
             onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
     <script>
-      let API_KEY = 'YOUR_API_KEY';
+      let API_KEY = google.api_key;
       let CLIENT_ID = '276102916706-h6q7orgvm879tpj3cq36rvjsmarhq5hq.apps.googleusercontent.com';
       let SCOPE = 'https://www.googleapis.com/auth/calendar.events';
     
@@ -32,7 +32,6 @@
         gapi.load('client:auth2', initClient);
       }
 
-      
       function initClient() {
         gapi.client.init({
           apiKey: API_KEY,
@@ -83,19 +82,27 @@
                     const formattedEventDetails = data.generated_event_details.replace(/,/g, '\n');
                     generatedEventDetails.textContent = formattedEventDetails;
         
-                    // Parse the formattedEventDetails to extract the event data
+                    const summaryMatch = formattedEventDetails.match(/SUMMARY:(.+?)\n/);
+                    const startDateTimeMatch = formattedEventDetails.match(/DTSTART;VALUE=DATE-TIME:(.+?)\n/);
+                    const endDateTimeMatch = formattedEventDetails.match(/DTEND;VALUE=DATE-TIME:(.+?)\n/);
+                    
+                    if (!summaryMatch || !startDateTimeMatch || !endDateTimeMatch) {
+                        alert("Error: Unable to parse the generated event details.");
+                        return;
+                    }
+                    
                     const eventData = {
-                        'summary': /* Extract event summary */,
+                        'summary': summaryMatch[1],
                         'start': {
-                            'dateTime': /* Extract event start dateTime */,
+                            'dateTime': data.event_date + 'T' + data.event_start_time,
                             'timeZone': 'America/Los_Angeles'
                         },
                         'end': {
-                            'dateTime': /* Extract event end dateTime */,
+                            'dateTime': data.event_date + 'T' + data.event_end_time,
                             'timeZone': 'America/Los_Angeles'
                         }
                     };
-        
+
                     // Call the Google Calendar API to create the event
                     gapi.client.calendar.events.insert({
                         'calendarId': 'primary',
@@ -113,9 +120,7 @@
                 console.error("Error:", error);
             });
         });
-
-
-        
+    
     </script>
 </body>
 </html>
