@@ -40,7 +40,7 @@ def add_event():
 
 
 # Set up OAuth 2.0
-flow = InstalledAppFlow.from_client_info(
+flow = InstalledAppFlow.from_client_config(
     client_config={
         "installed": {
             "client_id": client_id,
