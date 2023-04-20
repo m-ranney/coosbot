@@ -17,7 +17,6 @@ my_secret = os.environ['OPENAI_API_KEY']
 openai.api_key = my_secret
 
 cal_secret = os.environ['GOOGLE_CAL_CLIENT_SECRET']
-google.api_key = cal_secret
 
 # Home page
 @app.route('/')
