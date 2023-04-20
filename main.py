@@ -33,6 +33,7 @@ def calendar():
     default_date = tomorrow.isoformat()
     return render_template('calendar.html', default_date=default_date)
 
+
 @app.route('/add_event')
 def add_event():
     return render_template('add_event.html')
@@ -58,7 +59,9 @@ credentials = flow.run_local_server(port=0)
 calendar_service = build("calendar", "v3", credentials=credentials)
 
 
-
+@app.route('/get_client_data')
+def get_client_data():
+    return jsonify({"client_id": client_id, "cal_secret": cal_secret})
 
 
 @app.route('/generate_calendar', methods=['POST'])

@@ -24,10 +24,21 @@
             onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
     <script>
-      let API_KEY = cal_secret;
-      let CLIENT_ID = client_id;
+      let API_KEY;
+      let CLIENT_ID;
       let SCOPE = 'https://www.googleapis.com/auth/calendar.events';
-    
+      
+      fetch('/get_client_data')
+          .then(response => response.json())
+          .then(data => {
+              API_KEY = data.cal_secret;
+              CLIENT_ID = data.client_id;
+              handleClientLoad();
+          })
+          .catch(error => {
+              console.error("Error:", error);
+          });
+
       function handleClientLoad() {
         gapi.load('client:auth2', initClient);
       }
