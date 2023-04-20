@@ -55,7 +55,7 @@ flow = InstalledAppFlow.from_client_config(
     scopes=["https://www.googleapis.com/auth/calendar"],
 )
 
-credentials = flow.run_local_server(port=0)
+credentials = flow.run_local_server(port=8080)
 
 # Access the Google Calendar API
 calendar_service = build("calendar", "v3", credentials=credentials)
