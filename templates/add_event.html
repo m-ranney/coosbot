@@ -14,6 +14,7 @@
         <small>For best results, please specify event name, start time, and duration.</small><br>
         <input type="hidden" id="generated_event_details_input" name="event_details">
         <input type="submit" value="Add to Calendar">
+        <input type="button" id="download_button" value="Download ICS File" style="display:none">
     </form>
   
     <h2>Generated Event Details</h2>
@@ -22,6 +23,7 @@
     <script>
         const form = document.querySelector('form');
         const generatedEventDetails = document.getElementById('generated_event_details');
+        const downloadButton = document.getElementById('download_button');
         
         form.addEventListener('submit', async event => {
             event.preventDefault(); // Prevent the form from refreshing the page
@@ -37,50 +39,31 @@
                     body: new URLSearchParams({event_details: eventDetails})
                 });
         
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+        
                 const data = await response.text();
+        
                 if (data.error) {
                     alert("Error generating event details: " + data.error);
                 } else {
                     generatedEventDetails.textContent = data;
-        
-                    // Fetch the ICS file from the server
-                    const fileResponse = await fetch('/create_ics_file', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: new URLSearchParams({event_details: data})
-                    });
-        
-                    if (fileResponse.ok) {
-                        // Download the ICS file
-                        const blob = await fileResponse.blob();
-                        const fileName = 'event.ics';
-                        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-                            // For Internet Explorer
-                            window.navigator.msSaveOrOpenBlob(blob, fileName);
-                        } else {
-                            // For other browsers
-                            const url = window.URL.createObjectURL(blob);
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.download = fileName;
-                            link.style.display = 'none';
-                            document.body.appendChild(link);
-                            link.click();
-                            setTimeout(() => {
-                                document.body.removeChild(link);
-                                window.URL.revokeObjectURL(url);
-                            }, 100);
-                        }
-                    } else {
-                        throw new Error('Error fetching ICS file');
-                    }
+                    // Set the generated event details in the hidden input field
+                    document.getElementById('generated_event_details_input').value = data;
+                    // Show the download button
+                    downloadButton.style.display = 'inline';
                 }
             } catch (error) {
                 console.error("Error:", error);
             }
         });
+        
+        downloadButton.addEventListener('click', () => {
+            // Submit the form to trigger the file download
+            form.submit();
+        });
+        
         
     </script>
   
