@@ -25,47 +25,43 @@
         const generatedEventDetails = document.getElementById('generated_event_details');
         const downloadButton = document.getElementById('download_button');
         
-        form.addEventListener('submit', async event => {
+        form.addEventListener('submit', event => {
             event.preventDefault(); // Prevent the form from refreshing the page
         
             const eventDetails = document.getElementById('event_details').value;
-        
-            try {
-                const response = await fetch('/generate_event_details', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: new URLSearchParams({event_details: eventDetails})
-                });
-        
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-        
-                const data = await response.text();
-        
+            
+            fetch('/generate_event_details', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({event_details: eventDetails})
+            })
+            .then(response => response.text())
+            .then(data => {
                 if (data.error) {
                     alert("Error generating event details: " + data.error);
                 } else {
                     generatedEventDetails.textContent = data;
-                    // Set the generated event details in the hidden input field
-                    document.getElementById('generated_event_details_input').value = data;
-                    // Show the download button
-                    downloadButton.style.display = 'inline';
+        
+                    // Display the download button and set its onclick action
+                    downloadButton.style.display = "block";
+                    downloadButton.onclick = () => {
+                        const filename = 'event.ics';
+                        const contentType = 'text/calendar;charset=utf-8;';
+                        const blob = new Blob([data], { type: contentType });
+        
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = filename;
+                        link.click();
+                    };
                 }
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error("Error:", error);
-            }
+            });
         });
-        
-        downloadButton.addEventListener('click', () => {
-            // Submit the form to trigger the file download
-            form.submit();
-        });
-        
-        
     </script>
-  
 </body>
 </html>
