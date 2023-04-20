@@ -8,7 +8,7 @@
 <body>
     <h1>Add Event</h1>
   
-    <form id="event_form" method="POST">
+    <form id="event_form" action="/create_ics_file" method="post" enctype="multipart/form-data">
         <label for="event_details">Enter event details:</label><br>
         <textarea id="event_details" name="event_details" rows="5" cols="40"></textarea><br>
         <small>For best results, please specify event name, start time, and duration.</small><br>
