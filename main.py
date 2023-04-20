@@ -1,10 +1,4 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory 
-import logging
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
-)
 import os
 import openai
 import uuid
@@ -118,23 +112,6 @@ def generate_event_details():
         return jsonify({"error": str(e)})
     
     return jsonify({"generated_event_details": generated_event_details})
-
-@app.route('/create_ics_file', methods=['POST'])
-def create_ics_file():
-    try:
-        event_details = request.form.get('event_details')
-
-        # Create a unique filename
-        file_name = f"{uuid.uuid4()}.ics"
-
-        # Save the event details to an .ics file
-        with open(file_name, 'w') as f:
-            f.write(event_details)
-
-        return send_from_directory(directory=os.getcwd(), path=file_name, as_attachment=True)
-    except Exception as e:
-        logging.error(f"Error in create_ics_file: {str(e)}")
-        return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)

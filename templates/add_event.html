@@ -8,28 +8,66 @@
 <body>
     <h1>Add Event</h1>
   
-    <form id="event_form" action="/create_ics_file" method="post" enctype="multipart/form-data">
+    <form id="event_form" action="javascript:void(0);" method="post">
         <label for="event_details">Enter event details:</label><br>
         <textarea id="event_details" name="event_details" rows="5" cols="40"></textarea><br>
         <small>For best results, please specify event name, start time, and duration.</small><br>
         <input type="hidden" id="generated_event_details_input" name="event_details">
         <input type="submit" value="Add to Calendar">
-        <input type="button" id="download_button" value="Download ICS File" style="display:none">
     </form>
   
     <h2>Generated Event Details</h2>
     <div id="generated_event_details"></div>
   
+    <script async defer src="https://apis.google.com/js/api.js"
+            onload="this.onload=function(){};handleClientLoad()"
+            onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+    <script>
+      let API_KEY = 'YOUR_API_KEY';
+      let CLIENT_ID = '276102916706-h6q7orgvm879tpj3cq36rvjsmarhq5hq.apps.googleusercontent.com';
+      let SCOPE = 'https://www.googleapis.com/auth/calendar.events';
+    
+      function handleClientLoad() {
+        gapi.load('client:auth2', initClient);
+      }
+
+      
+      function initClient() {
+        gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          scope: SCOPE
+        }).then(() => {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+    
+          // Handle the initial sign-in state.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+        }, error => {
+          console.error(JSON.stringify(error));
+        });
+      }
+    
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          console.log("User is signed in");
+        } else {
+          console.log("User is not signed in");
+          gapi.auth2.getAuthInstance().signIn();
+        }
+      }
+    </script>
+    
     <script>
         const form = document.querySelector('form');
         const generatedEventDetails = document.getElementById('generated_event_details');
-        const downloadButton = document.getElementById('download_button');
         
         form.addEventListener('submit', event => {
             event.preventDefault(); // Prevent the form from refreshing the page
         
             const eventDetails = document.getElementById('event_details').value;
-            
+        
             fetch('/generate_event_details', {
                 method: 'POST',
                 headers: {
@@ -45,24 +83,37 @@
                     const formattedEventDetails = data.generated_event_details.replace(/,/g, '\n');
                     generatedEventDetails.textContent = formattedEventDetails;
         
-                    // Display the download button and set its onclick action
-                    downloadButton.style.display = "block";
-                    downloadButton.onclick = () => {
-                        const filename = 'event.ics';
-                        const contentType = 'text/calendar;charset=utf-8;';
-                        const blob = new Blob([formattedEventDetails], { type: contentType });
-        
-                        const link = document.createElement('a');
-                        link.href = window.URL.createObjectURL(blob);
-                        link.download = filename;
-                        link.click();
+                    // Parse the formattedEventDetails to extract the event data
+                    const eventData = {
+                        'summary': /* Extract event summary */,
+                        'start': {
+                            'dateTime': /* Extract event start dateTime */,
+                            'timeZone': 'America/Los_Angeles'
+                        },
+                        'end': {
+                            'dateTime': /* Extract event end dateTime */,
+                            'timeZone': 'America/Los_Angeles'
+                        }
                     };
+        
+                    // Call the Google Calendar API to create the event
+                    gapi.client.calendar.events.insert({
+                        'calendarId': 'primary',
+                        'resource': eventData
+                    }).then(response => {
+                        if (response.status === 200) {
+                            alert('Event created: ' + response.result.htmlLink);
+                        } else {
+                            alert('Error creating event: ' + response.statusText);
+                        }
+                    });
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
             });
         });
+
 
         
     </script>
