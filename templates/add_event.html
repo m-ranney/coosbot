@@ -37,19 +37,19 @@
                 },
                 body: new URLSearchParams({event_details: eventDetails})
             })
-            .then(response => response.text())
+            .then(response => response.json())
             .then(data => {
                 if (data.error) {
                     alert("Error generating event details: " + data.error);
                 } else {
-                    generatedEventDetails.textContent = data;
+                    generatedEventDetails.textContent = data.generated_event_details;
         
                     // Display the download button and set its onclick action
                     downloadButton.style.display = "block";
                     downloadButton.onclick = () => {
                         const filename = 'event.ics';
                         const contentType = 'text/calendar;charset=utf-8;';
-                        const blob = new Blob([data], { type: contentType });
+                        const blob = new Blob([data.generated_event_details], { type: contentType });
         
                         const link = document.createElement('a');
                         link.href = window.URL.createObjectURL(blob);
@@ -62,6 +62,7 @@
                 console.error("Error:", error);
             });
         });
+        
     </script>
 </body>
 </html>
