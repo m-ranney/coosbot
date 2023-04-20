@@ -131,7 +131,7 @@ def create_ics_file():
         with open(file_name, 'w') as f:
             f.write(event_details)
 
-        return send_from_directory(directory=os.getcwd(), filename=file_name, as_attachment=True)
+        return send_from_directory(directory=os.getcwd(), path=file_name, as_attachment=True)
     except Exception as e:
         logging.error(f"Error in create_ics_file: {str(e)}")
         return jsonify({"error": str(e)})
