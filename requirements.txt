@@ -5,3 +5,5 @@ openai
 icalendar
 google-api-python-client
 google-auth-oauthlib==0.4.6
+google-auth
+google-auth-httplib2
