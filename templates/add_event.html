@@ -105,11 +105,11 @@
                     const eventData = {
                         'summary': summaryMatch[1],
                         'start': {
-                            'dateTime': data.event_date + 'T' + data.event_start_time,
+                            'dateTime': data.event_date + 'T' + data.event_start_time.slice(0, 2) + ':' + data.event_start_time.slice(2, 4) + ':' + data.event_start_time.slice(4, 6),
                             'timeZone': 'America/Los_Angeles'
                         },
                         'end': {
-                            'dateTime': data.event_date + 'T' + data.event_end_time,
+                            'dateTime': data.event_date + 'T' + data.event_end_time.slice(0, 2) + ':' + data.event_end_time.slice(2, 4) + ':' + data.event_end_time.slice(4, 6),
                             'timeZone': 'America/Los_Angeles'
                         }
                     };

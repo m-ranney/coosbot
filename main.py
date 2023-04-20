@@ -6,6 +6,7 @@ import datetime
 from datetime import date, datetime, timedelta
 import re
 import pytz
+import json
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -132,7 +133,7 @@ def generate_event_details():
     try:
         response = openai.Completion.create(
             engine="text-davinci-002",
-            prompt=f"Use the information from '{event_details}' to generate an event that can be imported into Google Calendar. Assume that today is {today}. Parse the event date, start time, and duration from the user input, and generate the event details in the following format: 'SUMMARY:Example Event, DATE:20230417, DTSTART;VALUE=DATE-TIME:20230417T063000, DTEND;VALUE=DATE-TIME:20230417T064500'.",
+            prompt=f"Use the information from '{event_details}' to generate an event that can be imported into Google Calendar. Assume that today is {today}. Parse the event date, start time, and duration from the user input, and generate the event details in JSON format: '{{\"summary\": \"Example Event\", \"date\": \"20230417\", \"start_time\": \"063000\", \"end_time\": \"064500\"}}'.",
             temperature=0.5,
             max_tokens=200,
             top_p=1,
@@ -140,16 +141,16 @@ def generate_event_details():
             presence_penalty=0
         )
 
-        generated_event_details = response.choices[0].text.strip()
+        generated_event_details = json.loads(response.choices[0].text.strip())
         print("Generated Event Details:", generated_event_details)  # Log the generated event details
 
         date_match = re.search(r"DTSTART;VALUE=DATE-TIME:(\d{8})", generated_event_details)
         start_time_match = re.search(r"DTSTART;VALUE=DATE-TIME:\d{8}T(\d{6})", generated_event_details)
         end_time_match = re.search(r"DTEND;VALUE=DATE-TIME:\d{8}T(\d{6})", generated_event_details)
     
-        event_date = datetime.strptime(date_match.group(1), "%Y%m%d").strftime("%Y-%m-%d") if date_match else None
-        event_start_time = start_time_match.group(1) if start_time_match else None
-        event_end_time = end_time_match.group(1) if end_time_match else None
+        event_date = datetime.strptime(generated_event_details["date"], "%Y%m%d").strftime("%Y-%m-%d")
+        event_start_time = generated_event_details["start_time"]
+        event_end_time = generated_event_details["end_time"]
   
     except Exception as e:
         return jsonify({"error": str(e)})
