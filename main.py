@@ -46,7 +46,7 @@ flow = InstalledAppFlow.from_client_config(
         "installed": {
             "client_id": client_id,
             "client_secret": cal_secret,
-            "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob"],
+            "redirect_uris": ["https://coosbot.herokuapp.com/oauth2callback"],
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://accounts.google.com/o/oauth2/token",
         }
