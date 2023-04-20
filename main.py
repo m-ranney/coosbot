@@ -18,6 +18,8 @@ my_secret = os.environ['OPENAI_API_KEY']
 openai.api_key = my_secret
 
 cal_secret = os.environ['GOOGLE_CAL_CLIENT_SECRET']
+client_id = os.environ['GOOGLE_CAL_CLIENT_ID']
+refresh_token = os.environ['GOOGLE_CAL_REFRESH_TOKEN']
 
 # Home page
 @app.route('/')
@@ -149,6 +151,24 @@ def generate_event_details():
         return jsonify({"error": str(e)})
     
     return jsonify({"generated_event_details": generated_event_details, "event_date": event_date, "event_start_time": event_start_time, "event_end_time": event_end_time})
+
+
+def get_google_calendar_service():
+    creds = Credentials.from_authorized_user_info(info={
+        'client_id': client_id,
+        'client_secret': cal_secret,
+        'refresh_token': refresh_token,
+        'token_uri': 'https://oauth2.googleapis.com/token'
+    })
+
+    try:
+        service = build('calendar', 'v3', credentials=creds)
+        return service
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+        return None
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
