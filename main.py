@@ -174,6 +174,5 @@ def get_google_calendar_service():
         return None
 
 
-
 if __name__ == '__main__':
     app.run(debug=True)
