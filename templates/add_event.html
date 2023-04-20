@@ -23,65 +23,56 @@
         const form = document.querySelector('form');
         const generatedEventDetails = document.getElementById('generated_event_details');
         
-        form.addEventListener('submit', event => {
+        form.addEventListener('submit', async event => {
             event.preventDefault(); // Prevent the form from refreshing the page
-    
+        
             const eventDetails = document.getElementById('event_details').value;
-            
-            fetch('/generate_event_details', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams({event_details: eventDetails})
-            })
-            .then(response => response.json()) // Updated to parse the response as json
-            .then(data => {
+        
+            try {
+                const response = await fetch('/generate_event_details', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({event_details: eventDetails})
+                });
+        
+                const data = await response.text();
                 if (data.error) {
                     alert("Error generating event details: " + data.error);
                 } else {
-                    generatedEventDetails.textContent = data.generated_event_details;
-                    // Set the generated event details in the hidden input field and submit the form
-                    fetch('/create_ics_file', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                      },
-                      body: new URLSearchParams({event_details: data.generated_event_details})
-                    })
-                    .then(response => {
-                      if (response.ok) {
-                        return response.blob();
-                      } else {
-                        throw new Error('Error generating ICS file');
-                      }
-                    })
-                    .then(blob => {
-                      // Create a link element to download the ICS file
-                      const url = URL.createObjectURL(blob);
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.download = 'event.ics';
-                      link.style.display = 'none';
-                      document.body.appendChild(link);
-                      link.click();
-                      setTimeout(() => {
-                        document.body.removeChild(link);
-                        URL.revokeObjectURL(url);
-                      }, 100);
-                    })
-                    .catch(error => {
-                      console.error("Error:", error);
+                    generatedEventDetails.textContent = data;
+        
+                    // Fetch the ICS file from the server
+                    const fileResponse = await fetch('/create_ics_file', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({event_details: data})
                     });
-
+        
+                    if (fileResponse.ok) {
+                        // Download the ICS file
+                        const blob = await fileResponse.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'event.ics';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    } else {
+                        throw new Error('Error fetching ICS file');
+                    }
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error("Error:", error);
-            });
+            }
         });
-    </script>
 
+    </script>
   
 </body>
 </html>
